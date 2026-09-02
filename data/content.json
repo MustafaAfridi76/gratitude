@@ -1,0 +1,15 @@
+{
+  "concerns": [
+    { "id": "brain-fog", "label": "Brain fog", "title": "From fog to focus.", "message": "When everything feels cloudy, the first step is not pressure. It is clarity. Gratitude helps you slow down, organize your thoughts, and find a practical way forward." },
+    { "id": "anxiety", "label": "Anxiety", "title": "Make room to breathe.", "message": "Anxiety can make every decision feel urgent. Together, we create enough space to understand the worry, steady your thinking, and choose the next useful step." },
+    { "id": "career-uncertainty", "label": "Career uncertainty", "title": "Direction before speed.", "message": "You do not need a perfect ten-year plan. Gratitude helps you identify what matters, understand your options, and move toward work that fits who you are becoming." },
+    { "id": "job-hunting", "label": "Job hunting", "title": "Turn the search into a plan.", "message": "A job search can drain confidence. We bring structure to your applications, sharpen how you communicate your strengths, and keep the process moving without letting it define you." },
+    { "id": "comfort-zone", "label": "Leaving the comfort zone", "title": "Courage, made practical.", "message": "Growth does not have to mean one enormous leap. We turn avoidance into small, supported experiments that build confidence through real experience." },
+    { "id": "fomo", "label": "FOMO & comparison", "title": "Choose your own pace.", "message": "Comparison can make someone else's life feel like a deadline. Gratitude helps you reconnect with your values and make choices that belong to you." },
+    { "id": "presence", "label": "Being present", "title": "Come back to now.", "message": "When your attention lives in what might happen or what others are doing, life can pass unnoticed. We build grounded practices that make the present feel available again." },
+    { "id": "confidence", "label": "Low confidence", "title": "Build trust in yourself.", "message": "Confidence is not something you wait to feel. It grows as you understand yourself, keep small promises, and learn from action without judging every imperfect step." },
+    { "id": "habits", "label": "Sustainable habits", "title": "Change that can stay.", "message": "Real change has to fit real life. We create routines that are realistic, flexible, and connected to what matters, so progress can continue beyond a burst of motivation." },
+    { "id": "transitions", "label": "Life transitions", "title": "Find your footing in change.", "message": "New chapters can hold excitement and uncertainty at once. Coaching gives you a steady place to understand what is ending, what is beginning, and how you want to move forward." },
+    { "id": "young-pressure", "label": "Teen & young adult pressure", "title": "A steady voice in a loud season.", "message": "School, identity, family, friendships, and future plans can pile up quickly. Gratitude offers practical, age-aware support for making sense of pressure and growing confidence." }
+  ]
+}
