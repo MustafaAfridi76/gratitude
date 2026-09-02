@@ -182,6 +182,12 @@ document.querySelectorAll("[data-service-card]").forEach((card) => {
       item.classList.toggle("is-open", open);
       item.querySelector(".service-trigger")?.setAttribute("aria-expanded", String(open));
     });
+    if (window.innerWidth <= 900) {
+      window.setTimeout(() => card.scrollIntoView({
+        behavior: reducedMotion ? "auto" : "smooth",
+        block: "center"
+      }), 720);
+    }
   };
   card.querySelector(".service-trigger")?.addEventListener("click", openCard);
   card.addEventListener("pointerenter", () => { if (finePointer.matches) openCard(); });
