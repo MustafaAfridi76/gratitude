@@ -2,6 +2,13 @@ const clamp = (value, min = 0, max = 1) => Math.min(max, Math.max(min, value));
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
 
+// Startup sequence tuning. Change these values to make the opening shorter or longer.
+const INTRO_TIMING = {
+  hold: 2350,
+  exit: 950,
+  reducedMotionHold: 80
+};
+
 // Quote reveal tuning: lower visible values start earlier while the text is lower onscreen.
 const QUOTE_REVEAL_TIMING = {
   visibleRatio: .60,
@@ -10,6 +17,7 @@ const QUOTE_REVEAL_TIMING = {
   lineScrollDistance: 3.5
 };
 
+const siteIntro = document.querySelector("[data-site-intro]");
 const header = document.querySelector("[data-header]");
 const menuButton = document.querySelector(".menu-button");
 const hero = document.querySelector(".hero");
@@ -30,6 +38,26 @@ const pathPrev = document.querySelector("[data-path-prev]");
 const pathNext = document.querySelector("[data-path-next]");
 const parallaxElements = [...document.querySelectorAll("[data-parallax]")];
 const bookingForm = document.querySelector(".booking-form");
+
+let introDismissed = false;
+let introTimer;
+
+function dismissIntro() {
+  if (!siteIntro || introDismissed) return;
+  introDismissed = true;
+  window.clearTimeout(introTimer);
+  siteIntro.classList.add("is-leaving");
+  document.body.classList.remove("intro-running");
+  window.setTimeout(() => siteIntro.remove(), reducedMotion ? 20 : INTRO_TIMING.exit);
+}
+
+if (siteIntro) {
+  requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add("intro-ready")));
+  introTimer = window.setTimeout(dismissIntro, reducedMotion ? INTRO_TIMING.reducedMotionHold : INTRO_TIMING.hold);
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") dismissIntro(); });
+} else {
+  document.body.classList.remove("intro-running");
+}
 
 const concerns = {
   "brain-fog": ["From fog to focus.", "When everything feels cloudy, the first step is not pressure. It is clarity. We slow the noise, organize what matters, and find a practical way forward."],
