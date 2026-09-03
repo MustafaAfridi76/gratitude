@@ -23,10 +23,13 @@ const menuButton = document.querySelector(".menu-button");
 const hero = document.querySelector(".hero");
 const heroVideo = document.querySelector(".hero-video");
 const storyVideo = document.querySelector(".story-video");
+const facing = document.querySelector(".facing");
 const concernExplorer = document.querySelector("[data-concern-explorer]");
 const concernCore = document.querySelector(".concern-core");
 const concernTitle = document.querySelector("[data-concern-title]");
 const concernMessage = document.querySelector("[data-concern-message]");
+const concernCloud = document.querySelector(".concern-cloud");
+const concernNodes = [...document.querySelectorAll("[data-concern]")];
 const quoteStage = document.querySelector(".quote-stage");
 const scrubQuote = document.querySelector("[data-scrub-text]");
 const pathway = document.querySelector(".pathway");
@@ -36,6 +39,9 @@ const pathProgress = document.querySelector(".path-progress span");
 const pathCount = document.querySelector("[data-path-count]");
 const pathPrev = document.querySelector("[data-path-prev]");
 const pathNext = document.querySelector("[data-path-next]");
+const services = document.querySelector(".services");
+const servicesHeading = document.querySelector(".services-heading");
+const serviceCards = [...document.querySelectorAll("[data-service-card]")];
 const parallaxElements = [...document.querySelectorAll("[data-parallax]")];
 const bookingForm = document.querySelector(".booking-form");
 
@@ -117,10 +123,13 @@ document.addEventListener("pointerdown", (event) => {
   if (header?.classList.contains("menu-open") && !header.contains(event.target)) closeMenu();
 });
 
-function selectConcern(node) {
+let currentConcernIndex = 0;
+
+function selectConcern(node, { center = false } = {}) {
   const content = concerns[node.dataset.concern];
   if (!content) return;
-  concernExplorer.querySelectorAll("[data-concern]").forEach((item) => {
+  currentConcernIndex = Math.max(0, concernNodes.indexOf(node));
+  concernNodes.forEach((item) => {
     const active = item === node;
     item.classList.toggle("is-active", active);
     item.setAttribute("aria-pressed", String(active));
@@ -129,10 +138,15 @@ function selectConcern(node) {
   void concernCore?.offsetWidth;
   concernTitle.textContent = content[0];
   concernMessage.textContent = content[1];
+  if (concernCore) concernCore.dataset.current = String(currentConcernIndex + 1).padStart(2, "0");
   concernCore?.classList.add("is-changing");
+  if (center && concernCloud) {
+    const left = node.offsetLeft - (concernCloud.clientWidth - node.offsetWidth) / 2;
+    concernCloud.scrollTo({ left, behavior: reducedMotion ? "auto" : "smooth" });
+  }
 }
 
-concernExplorer?.querySelectorAll("[data-concern]").forEach((node) => {
+concernNodes.forEach((node) => {
   node.addEventListener("click", () => selectConcern(node));
   node.addEventListener("focus", () => selectConcern(node));
   node.addEventListener("pointerenter", () => { if (finePointer.matches) selectConcern(node); });
@@ -175,22 +189,35 @@ document.querySelectorAll(".tilt-card").forEach((card) => {
   });
 });
 
-document.querySelectorAll("[data-service-card]").forEach((card) => {
-  const openCard = () => {
-    document.querySelectorAll("[data-service-card]").forEach((item) => {
-      const open = item === card;
-      item.classList.toggle("is-open", open);
-      item.querySelector(".service-trigger")?.setAttribute("aria-expanded", String(open));
-    });
-    if (window.innerWidth <= 900) {
-      window.setTimeout(() => card.scrollIntoView({
-        behavior: reducedMotion ? "auto" : "smooth",
-        block: "center"
-      }), 720);
+let currentServiceIndex = 0;
+
+function setActiveService(index) {
+  currentServiceIndex = Math.round(clamp(index, 0, serviceCards.length - 1));
+  serviceCards.forEach((card, cardIndex) => {
+    const open = cardIndex === currentServiceIndex;
+    card.classList.toggle("is-open", open);
+    card.classList.toggle("is-before", cardIndex < currentServiceIndex);
+    card.classList.toggle("is-next", cardIndex === currentServiceIndex + 1);
+    card.classList.toggle("is-after", cardIndex > currentServiceIndex + 1);
+    card.querySelector(".service-trigger")?.setAttribute("aria-expanded", String(open));
+  });
+  if (servicesHeading) servicesHeading.dataset.current = `${String(currentServiceIndex + 1).padStart(2, "0")} / ${String(serviceCards.length).padStart(2, "0")}`;
+}
+
+serviceCards.forEach((card, index) => {
+  const activate = () => {
+    if (window.innerWidth <= 900 && services) {
+      const scrollable = Math.max(1, services.offsetHeight - window.innerHeight);
+      window.scrollTo({
+        top: services.offsetTop + (index / Math.max(1, serviceCards.length - 1)) * scrollable,
+        behavior: reducedMotion ? "auto" : "smooth"
+      });
+      return;
     }
+    setActiveService(index);
   };
-  card.querySelector(".service-trigger")?.addEventListener("click", openCard);
-  card.addEventListener("pointerenter", () => { if (finePointer.matches) openCard(); });
+  card.querySelector(".service-trigger")?.addEventListener("click", activate);
+  card.addEventListener("pointerenter", () => { if (finePointer.matches && window.innerWidth > 900) activate(); });
 });
 
 let currentPathIndex = 0;
@@ -203,12 +230,15 @@ function setCurrentPath(index) {
 function goToPath(index) {
   const targetIndex = Math.round(clamp(index, 0, pathCards.length - 1));
   setCurrentPath(targetIndex);
-  if (window.innerWidth <= 900 || reducedMotion) {
-    const target = pathCards[targetIndex];
-    const edge = window.innerWidth <= 560 ? 18 : 24;
-    pathTrack?.scrollTo({ left: target.offsetLeft - edge, behavior: "smooth" });
+  if (window.innerWidth <= 900) {
+    const scrollable = Math.max(1, pathway.offsetHeight - window.innerHeight);
+    window.scrollTo({
+      top: pathway.offsetTop + (targetIndex / Math.max(1, pathCards.length - 1)) * scrollable,
+      behavior: reducedMotion ? "auto" : "smooth"
+    });
     return;
   }
+  if (reducedMotion) return;
   const scrollable = pathway.offsetHeight - window.innerHeight;
   window.scrollTo({ top: pathway.offsetTop + (targetIndex / (pathCards.length - 1)) * scrollable, behavior: "smooth" });
 }
@@ -217,7 +247,7 @@ pathPrev?.addEventListener("click", () => goToPath(currentPathIndex - 1));
 pathNext?.addEventListener("click", () => goToPath(currentPathIndex + 1));
 
 pathTrack?.addEventListener("scroll", () => {
-  if (window.innerWidth > 900) return;
+  if (window.innerWidth <= 900) return;
   const maxScroll = pathTrack.scrollWidth - pathTrack.clientWidth;
   const progress = maxScroll > 0 ? pathTrack.scrollLeft / maxScroll : 0;
   if (pathProgress) pathProgress.style.width = `${progress * 100}%`;
@@ -298,14 +328,56 @@ function updateScrubbedQuote() {
 }
 
 function updatePathway() {
-  if (!pathway || !pathTrack || window.innerWidth <= 900 || reducedMotion) return;
+  if (!pathway || !pathTrack) return;
   const rect = pathway.getBoundingClientRect();
-  const scrollable = pathway.offsetHeight - window.innerHeight;
+  const scrollable = Math.max(1, pathway.offsetHeight - window.innerHeight);
   const progress = clamp(-rect.top / scrollable);
+  if (window.innerWidth <= 900) {
+    const position = progress * (pathCards.length - 1);
+    pathTrack.style.transform = "";
+    pathCards.forEach((card, index) => {
+      const distance = index - position;
+      const opacity = clamp(1 - Math.abs(distance) * 1.35, 0, 1);
+      const y = clamp(distance * 44, -52, 52);
+      const scale = 1 - Math.min(Math.abs(distance), 1) * .045;
+      card.style.opacity = opacity.toFixed(3);
+      card.style.transform = `translate3d(0, ${y}px, 0) scale(${scale})`;
+      card.style.pointerEvents = Math.abs(distance) < .55 ? "auto" : "none";
+    });
+    if (pathProgress) pathProgress.style.width = `${progress * 100}%`;
+    setCurrentPath(Math.round(position));
+    return;
+  }
+  pathCards.forEach((card) => {
+    card.style.removeProperty("opacity");
+    card.style.removeProperty("transform");
+    card.style.removeProperty("pointer-events");
+  });
+  if (reducedMotion) return;
   const maxTravel = Math.max(0, pathTrack.scrollWidth - window.innerWidth + window.innerWidth * .05);
   pathTrack.style.transform = `translate3d(${-progress * maxTravel}px, 0, 0)`;
   if (pathProgress) pathProgress.style.width = `${progress * 100}%`;
   setCurrentPath(Math.round(progress * (pathCards.length - 1)));
+}
+
+function updateMobileConcerns() {
+  if (!facing || !concernNodes.length || window.innerWidth > 900) return;
+  const rect = facing.getBoundingClientRect();
+  if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+  const scrollable = Math.max(1, facing.offsetHeight - window.innerHeight);
+  const progress = clamp((-rect.top - window.innerHeight * .12) / (scrollable * .88));
+  const index = Math.min(concernNodes.length - 1, Math.floor(progress * concernNodes.length));
+  if (index !== currentConcernIndex) selectConcern(concernNodes[index], { center: true });
+}
+
+function updateMobileServices() {
+  if (!services || !serviceCards.length || window.innerWidth > 900) return;
+  const rect = services.getBoundingClientRect();
+  if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+  const scrollable = Math.max(1, services.offsetHeight - window.innerHeight);
+  const progress = clamp(-rect.top / scrollable);
+  const index = Math.round(progress * (serviceCards.length - 1));
+  if (index !== currentServiceIndex) setActiveService(index);
 }
 
 function updateParallax() {
@@ -334,7 +406,9 @@ function updateActiveNav() {
 function updateScroll() {
   header?.classList.toggle("scrolled", window.scrollY > 45);
   updateScrubbedQuote();
+  updateMobileConcerns();
   updatePathway();
+  updateMobileServices();
   updateParallax();
   updateActiveNav();
 }
@@ -385,6 +459,7 @@ document.querySelectorAll(".faq-list details").forEach((detail) => {
 
 const year = document.querySelector("[data-year]");
 if (year) year.textContent = new Date().getFullYear();
+setActiveService(0);
 setCurrentPath(0);
 updateScroll();
 playHero();
