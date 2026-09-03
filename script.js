@@ -268,12 +268,20 @@ function updateVideoRate(video) {
 async function playHero({ restart = false } = {}) {
   if (!heroVideo || reducedMotion) return;
   if (restart) heroVideo.currentTime = 0;
+  heroVideo.muted = true;
+  heroVideo.defaultMuted = true;
+  heroVideo.volume = 0;
   heroVideo.loop = true;
   heroVideo.playbackRate = .7;
   try { await heroVideo.play(); } catch { /* The first frame remains if autoplay is blocked. */ }
 }
 
-heroVideo?.addEventListener("loadedmetadata", () => { heroVideo.playbackRate = .7; });
+heroVideo?.addEventListener("loadedmetadata", () => {
+  heroVideo.muted = true;
+  heroVideo.defaultMuted = true;
+  heroVideo.volume = 0;
+  heroVideo.playbackRate = .7;
+});
 
 const heroObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
