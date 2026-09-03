@@ -26,9 +26,13 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  background: var(--void);
+}
 body {
   margin: 0;
+  min-height: 100dvh;
   overflow-x: clip;
   background: var(--void);
   color: var(--white);
@@ -935,7 +939,14 @@ body.cursor-ready .cursor-light { opacity: 1; }
 
 /* Phone art direction: isolated from the desktop composition. */
 @media (max-width: 900px) {
-  html { scroll-padding-top: 76px; }
+  html {
+    scroll-padding-top: 76px;
+    background: #0b1a14;
+  }
+  body {
+    background: #0b1a14;
+    overscroll-behavior-y: none;
+  }
   main > section { scroll-margin-top: 72px; }
   :root {
     --nav-logo-size: 54px;
@@ -977,9 +988,16 @@ body.cursor-ready .cursor-light { opacity: 1; }
   .site-header.menu-open .nav-book { margin-top: 20px; }
 
   .hero {
-    height: 100svh;
+    height: 100dvh;
     min-height: 700px;
     max-height: none;
+  }
+  @supports (height: 100lvh) {
+    .hero { height: 100lvh; }
+    .hero-copy {
+      height: 100svh;
+      min-height: 700px;
+    }
   }
   .hero-media { scale: 1.03; }
   .hero-film {
