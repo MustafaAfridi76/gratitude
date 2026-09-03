@@ -42,6 +42,7 @@ body {
 body.menu-locked { overflow: hidden; }
 body.intro-running { overflow: hidden; }
 img, video { display: block; max-width: 100%; }
+img { height: auto; }
 button, input, select, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; }
